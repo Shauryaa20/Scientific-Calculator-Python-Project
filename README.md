@@ -1,1 +1,1 @@
-# Scientific-Calculator-Python-Project
+# A Tool for Mathematics
