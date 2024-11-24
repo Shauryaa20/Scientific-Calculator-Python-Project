@@ -13,29 +13,24 @@ class LinearSolverUI:
         self.window.title("Linear Equation Solver")
         self.window.geometry("800x600")
         
-        # Create notebook for different modes
-        self.notebook = ttk.Notebook(window)
-        self.notebook.pack(fill=tk.BOTH, expand=True, padx=10, pady=10)
-        
-        # Create tabs
-        self.create_2var_tab()
-        self.create_3var_tab()
-        self.create_graph_tab()
+        # Main container
+        self.main_frame = ttk.Frame(window, padding=10, style='Solver.TFrame')
+        self.main_frame.pack(fill=tk.BOTH, expand=True)
         
         # Configure styles
         self.configure_styles()
+        
+        # Create main interface
+        self.create_interface()
     
     def configure_styles(self):
         style = ttk.Style()
         style.configure('Solver.TFrame', padding=10)
         style.configure('Result.TLabel', font=('Helvetica', 12))
     
-    def create_2var_tab(self):
-        tab = ttk.Frame(self.notebook, style='Solver.TFrame')
-        self.notebook.add(tab, text='2 Variables')
-        
+    def create_interface(self):
         # Input frame
-        input_frame = ttk.LabelFrame(tab, text="Enter Coefficients", padding=10)
+        input_frame = ttk.LabelFrame(self.main_frame, text="Enter Coefficients", padding=10)
         input_frame.pack(fill=tk.X, padx=10, pady=10)
         
         # First equation
@@ -65,7 +60,7 @@ class LinearSolverUI:
         self.c2.pack(side=tk.LEFT, padx=2)
         
         # Buttons frame
-        button_frame = ttk.Frame(tab)
+        button_frame = ttk.Frame(self.main_frame)
         button_frame.pack(fill=tk.X, padx=10, pady=10)
         
         ttk.Button(button_frame, text="Solve", command=self.solve_2var).pack(side=tk.LEFT, padx=5)
@@ -73,7 +68,7 @@ class LinearSolverUI:
         ttk.Button(button_frame, text="Plot", command=self.plot_2var).pack(side=tk.LEFT, padx=5)
         
         # Result frame
-        self.result_frame = ttk.LabelFrame(tab, text="Results", padding=10)
+        self.result_frame = ttk.LabelFrame(self.main_frame, text="Results", padding=10)
         self.result_frame.pack(fill=tk.BOTH, expand=True, padx=10, pady=10)
         
         self.result_label = ttk.Label(self.result_frame, text="", style='Result.TLabel')
@@ -83,16 +78,6 @@ class LinearSolverUI:
         self.fig, self.ax = plt.subplots(figsize=(6, 4))
         self.canvas = FigureCanvasTkAgg(self.fig, master=self.result_frame)
         self.canvas.get_tk_widget().pack(fill=tk.BOTH, expand=True)
-    
-    def create_3var_tab(self):
-        # Similar structure to 2var tab but with 3 variables
-        # Implementation here...
-        pass
-    
-    def create_graph_tab(self):
-        # Interactive graphing tab
-        # Implementation here...
-        pass
     
     def solve_2var(self):
         try:
@@ -123,24 +108,37 @@ class LinearSolverUI:
             a1, b1, c1 = float(self.a1.get()), float(self.b1.get()), float(self.c1.get())
             a2, b2, c2 = float(self.a2.get()), float(self.b2.get()), float(self.c2.get())
             
-            # Create x values
+            # Create x and y values
             x = np.linspace(-100, 100, 1000)
-            
-            # Calculate y values for both equations
-            y1 = (-a1*x + c1) / b1 if b1 != 0 else np.full_like(x, c1/a1 if a1 != 0 else np.nan)
-            y2 = (-a2*x + c2) / b2 if b2 != 0 else np.full_like(x, c2/a2 if a2 != 0 else np.nan)
             
             # Clear previous plot
             self.ax.clear()
             
-            # Plot lines
-            self.ax.plot(x, y1, label='Equation 1')
-            self.ax.plot(x, y2, label='Equation 2')
+            # Plot first equation
+            if a1 == 0 and b1 != 0:  # Horizontal line
+                y1 = c1/b1
+                self.ax.axhline(y=y1, label='Equation 1')
+            elif b1 == 0 and a1 != 0:  # Vertical line
+                x1 = c1/a1
+                self.ax.axvline(x=x1, label='Equation 1')
+            else:  # Regular line
+                y1 = (-a1*x + c1) / b1
+                self.ax.plot(x, y1, label='Equation 1')
+                
+            # Plot second equation
+            if a2 == 0 and b2 != 0:  # Horizontal line
+                y2 = c2/b2
+                self.ax.axhline(y=y2, color='g', label='Equation 2')
+            elif b2 == 0 and a2 != 0:  # Vertical line
+                x2 = c2/a2
+                self.ax.axvline(x=x2, color='g', label='Equation 2')
+            else:  # Regular line
+                y2 = (-a2*x + c2) / b2
+                self.ax.plot(x, y2, color='g', label='Equation 2')
             
             # Add grid and labels
             self.ax.grid(True)
             self.ax.set_xlabel('x')
-            self.ax.set_ylabel('y')
             self.ax.legend()
             
             # Set reasonable limits

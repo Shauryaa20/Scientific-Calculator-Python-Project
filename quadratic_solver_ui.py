@@ -124,8 +124,7 @@ class QuadraticSolverUI:
         self.ax.grid(True, alpha=0.3)
         
         # Set labels
-        self.ax.set_xlabel('x')
-        self.ax.set_ylabel('y')
+        self.ax.set_xlabel('X')
         self.ax.set_title(f'y = {a:g}x² + {b:g}x + {c:g}')
 
         # Update canvas
